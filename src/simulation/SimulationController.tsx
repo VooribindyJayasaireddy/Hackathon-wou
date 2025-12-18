@@ -6,6 +6,8 @@ import { agentsState } from './agentsState';
 import { worldState } from './worldState';
 import { computePlateState } from './updatePlates';
 import { runStep } from './gameLoop';
+import { metricsTracker } from '../rl/metricsTracker';
+import { Q } from '../rl/qTable';
 
 interface SimulationControllerProps {
   onStateChange?: (state: {
@@ -27,6 +29,15 @@ export function SimulationController({ onStateChange, startEpisodeRef }: Simulat
   const [stepCount, setStepCount] = useState(0);
   const [episode, setEpisode] = useState(0);
 
+  // Track episode rewards
+  const [episodeRewards, setEpisodeRewards] = useState<Record<string, number>>({
+    thief: 0,
+    guardian: 0,
+    negotiator: 0,
+    AgentX: 0,
+  });
+  const [vaultOpenedThisEpisode, setVaultOpenedThisEpisode] = useState(false);
+
   // Initialize environment
   useEffect(() => {
     resetEnvironment();
@@ -45,6 +56,8 @@ export function SimulationController({ onStateChange, startEpisodeRef }: Simulat
     setStepCount(0);
     setIsRunning(true);
     setEpisode(prev => prev + 1);
+    setEpisodeRewards({ thief: 0, guardian: 0, negotiator: 0, AgentX: 0 });
+    setVaultOpenedThisEpisode(false);
     console.log(`[Episode ${episode + 1}] Starting...`);
   };
 
@@ -69,6 +82,19 @@ export function SimulationController({ onStateChange, startEpisodeRef }: Simulat
     const interval = setInterval(() => {
       const result = runStep();
 
+      // Accumulate rewards
+      setEpisodeRewards(prev => ({
+        thief: prev.thief + result.rewards.thief,
+        guardian: prev.guardian + result.rewards.guardian,
+        negotiator: prev.negotiator + result.rewards.negotiator,
+        AgentX: prev.AgentX + result.rewards.AgentX,
+      }));
+
+      // Track if vault opened during episode
+      if (worldState.vaultOpen) {
+        setVaultOpenedThisEpisode(true);
+      }
+
       // Update UI state from global state
       setAgents([...agentsState]);
       setPlateState(computePlateState());
@@ -78,13 +104,37 @@ export function SimulationController({ onStateChange, startEpisodeRef }: Simulat
       if (result.done) {
         setDone(true);
         setIsRunning(false);
-        console.log(`[Episode ${episode}] Finished at step ${stepCount + 1}`);
-        console.log('[Rewards]', result.rewards);
+
+        const finalStepCount = stepCount + 1;
+        const crystalOwner = worldState.crystalOwner;
+        const success = crystalOwner !== null;
+
+        // Record metrics for this episode
+        const finalRewards = {
+          thief: episodeRewards.thief + result.rewards.thief,
+          guardian: episodeRewards.guardian + result.rewards.guardian,
+          negotiator: episodeRewards.negotiator + result.rewards.negotiator,
+          AgentX: episodeRewards.AgentX + result.rewards.AgentX,
+        };
+
+        metricsTracker.recordEpisode(
+          episode,
+          finalRewards,
+          finalStepCount,
+          success,
+          worldState.vaultOpen || vaultOpenedThisEpisode,
+          crystalOwner,
+          Q
+        );
+
+        console.log(`[Episode ${episode}] Finished at step ${finalStepCount}`);
+        console.log('[Rewards]', finalRewards);
+        console.log('[Success]', success);
       }
     }, 1500); // 1500ms per step for better visibility
 
     return () => clearInterval(interval);
-  }, [isRunning, done, stepCount, episode]);
+  }, [isRunning, done, stepCount, episode, episodeRewards, vaultOpenedThisEpisode]);
 
   return (
     <Scene

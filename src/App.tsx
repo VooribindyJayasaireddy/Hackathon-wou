@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { SimulationController } from './simulation/SimulationController';
 import { useRef, useState } from 'react';
 import { InteractionPanel } from './ui/InteractionPanel';
+import { TrainingMetrics } from './ui/TrainingMetrics';
 
 export default function App() {
   const startEpisodeRef = useRef<(() => void) | null>(null);
@@ -11,6 +12,7 @@ export default function App() {
     isRunning: false,
     done: false,
   });
+  const [showMetrics, setShowMetrics] = useState(true);
 
   const handleStartEpisode = () => {
     if (startEpisodeRef.current) {
@@ -21,16 +23,16 @@ export default function App() {
   return (
     <>
       {/* UI Controls - OUTSIDE Canvas */}
-      <div style={{ 
-        position: 'absolute', 
-        top: 10, 
-        left: 10, 
+      <div style={{
+        position: 'absolute',
+        top: 10,
+        left: 10,
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
         gap: '10px'
       }}>
-        <button 
+        <button
           onClick={handleStartEpisode}
           disabled={simState.isRunning}
           style={{
@@ -46,10 +48,10 @@ export default function App() {
         >
           {simState.isRunning ? 'Running...' : simState.done ? 'Start New Episode' : 'Start Episode'}
         </button>
-        
-        <div style={{ 
-          color: 'white', 
-          backgroundColor: 'rgba(0,0,0,0.7)', 
+
+        <div style={{
+          color: 'white',
+          backgroundColor: 'rgba(0,0,0,0.7)',
           padding: '10px',
           borderRadius: '5px',
           fontSize: '14px'
@@ -58,13 +60,32 @@ export default function App() {
           <div>Step: {simState.stepCount}</div>
           <div>Status: {simState.done ? 'Complete' : simState.isRunning ? 'Running' : 'Ready'}</div>
         </div>
+
+        <button
+          onClick={() => setShowMetrics(!showMetrics)}
+          style={{
+            padding: '8px 16px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            backgroundColor: '#2196F3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+          }}
+        >
+          {showMetrics ? 'Hide' : 'Show'} Metrics
+        </button>
       </div>
 
       <InteractionPanel stepCount={simState.stepCount} />
 
+      {/* Training Metrics Panel */}
+      {showMetrics && <TrainingMetrics currentEpisode={simState.episode} />}
+
       {/* 3D Canvas */}
       <Canvas camera={{ position: [0, 12, 16], fov: 45 }}>
-        <SimulationController 
+        <SimulationController
           startEpisodeRef={startEpisodeRef}
           onStateChange={setSimState}
         />

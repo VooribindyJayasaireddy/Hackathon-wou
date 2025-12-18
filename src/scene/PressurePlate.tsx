@@ -1,5 +1,5 @@
 export function PressurePlate({
-  index,
+  index: _index,
   position,
   active,
 }: {

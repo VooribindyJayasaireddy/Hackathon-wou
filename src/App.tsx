@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { SimulationController } from './simulation/SimulationController';
 import { useRef, useState } from 'react';
+import { InteractionPanel } from './ui/InteractionPanel';
 
 export default function App() {
   const startEpisodeRef = useRef<(() => void) | null>(null);
@@ -58,6 +59,8 @@ export default function App() {
           <div>Status: {simState.done ? 'Complete' : simState.isRunning ? 'Running' : 'Ready'}</div>
         </div>
       </div>
+
+      <InteractionPanel stepCount={simState.stepCount} />
 
       {/* 3D Canvas */}
       <Canvas camera={{ position: [0, 12, 16], fov: 45 }}>

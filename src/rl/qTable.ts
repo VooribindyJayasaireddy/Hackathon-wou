@@ -13,12 +13,28 @@ export const Q: Record<string, number[]> = {
   thief: Array(ACTIONS.length).fill(0),
   guardian: Array(ACTIONS.length).fill(0),
   negotiator: Array(ACTIONS.length).fill(0),
-  opportunist: Array(ACTIONS.length).fill(0),
+  AgentX: Array(ACTIONS.length).fill(0),
 };
+
+const STORAGE_KEY = 'crystal_q_table_v1';
+
+// Load Q-table from storage if available
+if (typeof localStorage !== 'undefined') {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      Object.assign(Q, parsed);
+      console.log('Loaded Q-table from localStorage');
+    }
+  } catch (e) {
+    console.warn('Failed to load Q-table:', e);
+  }
+}
 
 // Hyperparameters
 const EPSILON = 0.2; // Exploration rate
-const LEARNING_RATE = 0.1;
+const LEARNING_RATE = 0.2;
 const DISCOUNT_FACTOR = 0.95;
 
 // Epsilon-greedy action selection
@@ -33,7 +49,10 @@ export function selectAction(agentId: string, explore: boolean = true): AgentAct
   
   // Exploitation: best action
   const max = Math.max(...q);
-  const idx = q.indexOf(max);
+  // Find all indices that share the max value
+  const bestIndices = q.map((val, i) => val === max ? i : -1).filter(i => i !== -1);
+  // Randomly select one of the best indices to break ties
+  const idx = bestIndices[Math.floor(Math.random() * bestIndices.length)];
   return ACTIONS[idx];
 }
 
@@ -52,9 +71,26 @@ export function updateQ(
   const oldQ = Q[agentId][actionIdx];
   const newQ = oldQ + LEARNING_RATE * (reward + DISCOUNT_FACTOR * nextMaxQ - oldQ);
   Q[agentId][actionIdx] = newQ;
+
+  // Persist to storage
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Q));
+  }
 }
 
 // Get max Q-value for an agent (for next state)
 export function getMaxQ(agentId: string): number {
   return Math.max(...Q[agentId]);
 }
+
+// Reset learning (helper for debugging)
+export function resetLearning() {
+  Object.keys(Q).forEach(key => {
+    Q[key] = Array(ACTIONS.length).fill(0);
+  });
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+  console.log('Q-table reset');
+}
+

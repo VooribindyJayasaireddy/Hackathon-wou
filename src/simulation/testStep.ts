@@ -5,7 +5,7 @@ const result = step({
   thief: 'wait',
   guardian: 'wait',
   negotiator: 'wait',
-  opportunist: 'wait',
+  AgentX: 'wait',
 });
 
 console.log(result);

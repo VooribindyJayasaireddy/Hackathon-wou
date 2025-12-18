@@ -9,7 +9,7 @@ export function computeRewards(
     thief: 0,
     guardian: 0,
     negotiator: 0,
-    opportunist: 0,
+    AgentX: 0,
   };
 
   if (vaultOpen) {
@@ -19,8 +19,13 @@ export function computeRewards(
   }
 
   if (crystalOwner) {
-    rewards[crystalOwner] += 1.0;
+    rewards[crystalOwner] += 50.0;
   }
+
+  // Step penalty to encourage speed
+  Object.keys(rewards).forEach(id => {
+    rewards[id] -= 0.05;
+  });
 
   return rewards;
 }

@@ -9,7 +9,7 @@ const INITIAL_POSITIONS: Record<string, [number, number, number]> = {
   thief: [-7, -1.7, 0],
   guardian: [7, -1.7, 0],
   negotiator: [0, -1.7, -7],
-  opportunist: [0, -1.7, 7],
+  AgentX: [0, -1.7, 7],
 };
 
 export function resetEnvironment() {

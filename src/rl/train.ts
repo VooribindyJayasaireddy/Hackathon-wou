@@ -1,13 +1,13 @@
 import { step } from '../simulation/step';
 import { Policy } from './policy';
 
-const agents = ['thief', 'guardian', 'negotiator', 'opportunist'];
+const agents = ['thief', 'guardian', 'negotiator', 'AgentX'];
 
 const policies: Record<string, Policy> = {
   thief: new Policy(),
   guardian: new Policy(),
   negotiator: new Policy(),
-  opportunist: new Policy(),
+  AgentX: new Policy(),
 };
 
 for (let episode = 0; episode < 200; episode++) {

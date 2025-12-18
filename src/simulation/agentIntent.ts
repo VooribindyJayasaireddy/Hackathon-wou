@@ -11,5 +11,5 @@ export const agentIntent: Record<string, AgentIntent> = {
   thief: 'idle',
   guardian: 'idle',
   negotiator: 'idle',
-  opportunist: 'idle',
+  AgentX: 'idle',
 };

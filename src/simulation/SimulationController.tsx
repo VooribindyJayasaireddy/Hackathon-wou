@@ -81,7 +81,7 @@ export function SimulationController({ onStateChange, startEpisodeRef }: Simulat
         console.log(`[Episode ${episode}] Finished at step ${stepCount + 1}`);
         console.log('[Rewards]', result.rewards);
       }
-    }, 500); // 500ms per step for visibility
+    }, 1500); // 1500ms per step for better visibility
 
     return () => clearInterval(interval);
   }, [isRunning, done, stepCount, episode]);

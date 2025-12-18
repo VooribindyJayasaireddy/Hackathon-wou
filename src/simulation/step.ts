@@ -25,7 +25,7 @@ export function step(actions: Record<string, AgentAction>) {
     thief: getObservation('thief', plates, vaultOpen),
     guardian: getObservation('guardian', plates, vaultOpen),
     negotiator: getObservation('negotiator', plates, vaultOpen),
-    opportunist: getObservation('opportunist', plates, vaultOpen),
+    AgentX: getObservation('AgentX', plates, vaultOpen),
   };
 
   const done = crystalOwner !== null;

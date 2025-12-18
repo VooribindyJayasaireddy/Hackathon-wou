@@ -1,8 +1,9 @@
 import { step } from './step';
 import { AgentAction } from './actions';
-import { selectAction, getActionIndex, updateQ, getMaxQ } from '../rl/qTable';
+import { selectAction, getActionIndex, updateQ, getMaxQ, Q } from '../rl/qTable';
+import { agentsState } from './agentsState';
 
-const agents = ['thief', 'guardian', 'negotiator', 'opportunist'];
+const agents = ['thief', 'guardian', 'negotiator', 'AgentX'];
 
 // Store previous actions for Q-learning updates
 const previousActions: Record<string, { action: AgentAction; actionIdx: number }> = {};
@@ -18,6 +19,16 @@ export function runStep() {
     
     // Store for Q-learning update
     previousActions[id] = { action, actionIdx };
+
+    // Update UI state
+    const agent = agentsState.find(a => a.id === id);
+    if (agent) {
+      agent.lastDecision = {
+        action,
+        reason: 'Stateless Q-Learning',
+        value: Q[id][actionIdx]
+      };
+    }
   });
 
   // Execute step in environment

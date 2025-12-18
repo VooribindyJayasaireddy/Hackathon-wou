@@ -7,6 +7,7 @@ import { ExitZone } from './ExitZone';
 import { Crystal } from './Crystal';
 import { Particles } from './Particles';
 import { Agents } from '../agents/Agents';
+import { InteractionLinks } from './InteractionLinks';
 
 export function Scene({
   agents,
@@ -29,6 +30,7 @@ export function Scene({
       <Crystal />
       <ExitZone />
       <Agents agents={agents} />
+      <InteractionLinks agents={agents} />
 
 
     </>

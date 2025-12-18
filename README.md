@@ -1,4 +1,4 @@
-# Multi-Agent Reinforcement Learning Project
+# Hackathon PS3 Project
 
 ## Team Information
 
